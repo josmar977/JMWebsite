@@ -1,0 +1,263 @@
+"""
+Project One
+
+Author: Joshua Martinez
+Version: January 27th 2019
+"""
+records = []
+stateSort = False
+"""
+State Class that contains all used variables 
+"""
+class State:
+
+    def __init__(self, state_name, cap_city, state_abbr, state_pop, region, US_seats):
+        self.state_name = state_name
+        self.cap_city = cap_city
+        self.state_abbr = state_abbr
+        self.state_pop = state_pop
+        self.region = region
+        self.US_seats = US_seats
+
+    def get_state_name(self):
+        return self.state_name
+    def set_state_name(self, state_name):
+        self.state_name = state_name
+    def get_cap_city(self):
+        return self.cap_city
+    def set_cap_city(self, cap_city):
+        self.cap_city = cap_city
+    def get_state_abbr(self):
+        return self.state_abbr
+    def set_state_abbr(self, state_abbr):
+        self.state_abbr = state_abbr
+    def get_state_pop(self):
+        return str(self.state_pop)
+    def set_state_pop(self, state_pop):
+        self.state_pop = state_pop
+    def get_region(self):
+        return self.region
+    def set_region(self, region):
+        self.region = region
+    def get_US_seats(self):
+        return self.US_seats
+    def set_US_seats(self, US_seats):
+        self.US_seats = US_seats
+    def __str__ (self):
+        return self.state_name+":"+str(self.cap_city)+":"+str(self.state_abbr)+":"+str(self.state_pop)+":"+str(self.region)+":"+str(self.US_seats)+":"
+
+"""
+readFromFile()
+Reads the States.csv file
+No parameters 
+No return value, only prints the number of records read
+"""
+def readFromFile():
+     fileprompt = raw_input("Enter the file name:")
+     file = open(fileprompt)
+     f_contents = file.readlines()
+
+     file.close()
+     global records
+     for fileEntry in f_contents[1:]:
+         if fileEntry.rstrip() != "" and fileEntry.rstrip() is not None:
+                record = fileEntry.split(",")
+                records.append(State(record[0], record[1], record[2], int(record[3]), record[4], record[5]))
+     print "There were " + str(len(records)) + " state records read"
+
+"""
+stateRecord()
+Description: prints the data in a specific format
+Parameters: None
+Return: None
+"""
+def stateRecord():
+    state_name_width = max(len(state.get_state_name()) for state in records) + 2
+    if state_name_width < (len("State Name") + 2):
+        state_name_width = len("State Name") + 2
+    cap_city_width = max(len(state.get_cap_city()) for state in records) + 2
+    if cap_city_width < (len("Capital City") + 2):
+        cap_city_width = len("Capital City") + 2
+    state_abbr_width = max(len(state.get_state_abbr()) for state in records) + 2
+    if state_abbr_width < (len("State Abbreviation") + 2):
+        state_abbr_width = len("State Abbreviation") + 2
+    state_pop_width = max(len(str(state.get_state_pop())) for state in records) + 2
+    if state_pop_width < (len("State Population") + 2):
+        state_pop_width = len("State Population") + 2
+    region_width = max(len(state.get_region()) for state in records) + 2
+    if region_width < (len("Region") + 2):
+        region_width = len("Region") + 2
+    US_seats_width = max(len(state.get_US_seats()) for state in records) + 2
+    if US_seats_width < (len("US Seats") + 2):
+        US_seats_width = len("US Seats") + 2
+    print "".join("State Name".ljust(state_name_width)) + "".join("Capital City".ljust(cap_city_width)) + "".join("State Abbreviation".ljust(state_abbr_width)) + "".join("State Population".ljust(state_pop_width)) + "".join("Region".ljust(region_width)) + "".join("US Seats".ljust(US_seats_width))
+    print "-"*(state_name_width+cap_city_width+state_abbr_width+state_pop_width+region_width+US_seats_width)
+    for usState in records:
+        print "".join(usState.get_state_name().ljust(state_name_width)) + "".join(usState.get_cap_city().ljust(cap_city_width)) + "".join(usState.get_state_abbr().ljust(state_abbr_width)) + "".join(usState.get_state_pop().ljust(state_pop_width)) + "".join(usState.get_region().ljust(region_width)) + "".join(usState.get_US_seats().ljust(US_seats_width))
+
+"""
+partition()
+Description: Works in conjuction with the quicksort
+:parameters are arr, low and high
+return (i+1)
+"""
+def partition(arr, low, high):
+    i = (low - 1)
+    pivot = arr[high].get_state_name()
+    for j in range(low, high):
+
+     if arr[j].get_state_name() <= pivot:
+
+        i = i + 1
+        arr[i], arr[j] = arr[j], arr[i]
+
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+    return (i + 1)
+
+"""
+quickSort()
+Description: Sorts data alphabetically
+Parameters: arr, low and high
+Return: None
+"""
+def quickSort(arr, low, high):
+    if low < high:
+        pi = partition(arr, low, high)
+        quickSort(arr, low, pi - 1)
+        quickSort(arr, pi + 1, high)
+
+"""
+sortName()
+Description: Implements the quicksort within our project
+Parameters: None
+Return: None
+"""
+def sortName():
+    quickSort(records, 0, len(records) - 1)
+    global stateSort
+    stateSort = True
+    print "List is sorted by name"
+
+"""
+countingSort()
+Description: Works in conjuction with the radix sort
+Parameters: arr and exp1
+"""
+def countingSort(arr, exp1):
+    n = len(arr)
+    output = [0] * (n)
+
+    count = [0] * (10)
+
+    for i in range(0, n):
+        index = (arr[i].state_pop / exp1)
+        count[(index) % 10] += 1
+    for i in range(1, 10):
+        count[i] += count[i - 1]
+    i = n - 1
+    while i >= 0:
+        index = (arr[i].state_pop / exp1)
+        output[count[(index) % 10] - 1] = arr[i]
+        count[(index) % 10] -= 1
+        i -= 1
+
+    i = 0
+    for i in range(0, len(arr)):
+        arr[i] = output[i]
+"""
+radixSort()
+Description: Sorts the information either by descending or ascending order, numerically
+Parameters: arr
+Return: None
+"""
+def radixSort(arr):
+    max1 = max(state.state_pop for state in arr)
+    exp = 1
+    while max1 / exp > 0:
+        countingSort(arr, exp)
+        exp *= 10
+
+"""
+sortPop()
+Description: implements the radix sort for this specific project
+Parameters: None
+Return: None
+"""
+def sortPop():
+    radixSort(records)
+    global stateSort
+    stateSort = False
+    print "List is sorted by Population"
+
+"""
+binarySearch()
+Description: Searches the database using binary methodology 
+Parameters: arr, l, r, x
+Return: binarySearch(), -l 
+"""
+def binarySearch(arr, l, r, x):
+    if r >= l:
+        mid = l + (r - l) / 2
+        if arr[mid].name == x:
+            return mid
+        elif arr[mid].name > x:
+            return binarySearch(arr, l, mid - 1, x)
+        else:
+            return binarySearch(arr, mid + 1, r, x)
+
+    else:
+        return -1
+
+"""
+searchState()
+Description: Searches the database by State
+Parameters: None
+Return: None
+"""
+def searchState():
+    search = raw_input("Please enter the search key")
+    if stateSort is True:
+        print "Binary Search"
+        index = binarySearch(records, 0, len(records) - 1, search)
+        if index == -1:
+            print "Given input is not found"
+        else:
+            print " State name: " + records[index].get_state_name() + "\n Capital City: " + records[
+            index].get_cap_city() + "\n State Abbreviation: " + records[index].get_state_abbr() + "\n State Population " + \
+            records[index].get_state_pop() + "\n Region: " + records[index].get_region() + "\n US House Seats:" + \
+            records[index].get_US_seats()
+    else:
+        found = 0
+        for state in records:
+            if state.get_state_name() == search:
+                found = 1
+                print " State name: " + state.get_state_name() + "\n Capital City: " + state.get_cap_city() + "\n State Abbreviation: " + state.get_state_abbr() + "\n State Population " + state.get_state_pop() + "\n Region: " + state.get_region() + "\n US House Seats:" + state.get_US_seats()
+                break
+        if found == 0:
+            print "Given input is not found"
+"""
+menu()
+Description: Prints the main user menu. Provides the assigned options
+Parameters: None
+Return: None
+"""
+def menu():
+    print ("CAP4640/5605 Project 1")
+    print ("Instructor: Xudong Liu ")
+    readFromFile()
+    while(True):
+        print("\n 1. Print a state report \n 2. Sort by state name(using Quick Sort \n 3. Sort by population(using Radix sort) \n "
+          "4. Find and print a given state (using binary search if the data is sorted by state name, sequential search if not \n 5. Quit")
+        choice = input()
+        if choice == 1:
+            stateRecord()
+        elif choice == 2:
+            sortName()
+        elif choice == 3:
+            sortPop()
+        elif choice == 4:
+            searchState()
+        elif choice == 5:
+            break
+
+menu()
